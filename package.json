@@ -2,7 +2,7 @@
   "name": "trading_bot",
   "version": "1.0.0",
   "description": "Trading bot class for GDAX",
-  "main": "index.js",
+  "main": "lib/trading_bot.js",
   "scripts": {
     "test": "mocha test/**test.js",
     "coverage": "node ./node_modules/istanbul/lib/cli.js cover _mocha -- -R spec test/**test.js"
