@@ -1,6 +1,6 @@
 {
   "name": "trading_bot",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Trading bot super-class for Coinbase exchange",
   "main": "lib/trading_bot.js",
   "scripts": {
