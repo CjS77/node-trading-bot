@@ -1,7 +1,7 @@
 {
   "name": "trading_bot",
   "version": "2.0.0",
-  "description": "Trading bot super-class for Coinbase exchange",
+  "description": "Trading bot super-class for GDAX",
   "main": "lib/trading_bot.js",
   "scripts": {
     "test": "mocha test/**test.js",

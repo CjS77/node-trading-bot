@@ -1,6 +1,6 @@
-# Trading bot helper for Coinbase exchanges
+# Trading bot helper for GDAX exchanges
 
-This package provides a base from which to easily write automated trading bots on Coinbase's exchanges.
+This package provides a base from which to easily write automated trading bots on GDAX's exchanges.
 The bots can be run on the Sandbox (with play money, for testing) and with real money, using your API keys.
 
 # Installation
@@ -55,9 +55,9 @@ will be updated when the data arrives. As of this version of the code, no notifi
 The `_execute_trading_strategy` method must return a Promise that resolves when the trade is "done". You can decide what
 this means, but the method will not fire again until the promise has resolved.
 
-The `client` property of the super class is an [`AuthenticatedClient` instance of the Coinbase exchange API for node.js](https://github.com/coinbase/coinbase-node)
+The `client` property of the super class is an [`AuthenticatedClient` instance of the GDAX exchange API for node.js](https://github.com/coinbase/GDAX-node)
 which you can use to make trades, or do whatever you want. You might also find the
-[API docs](https://docs.exchange.coinbase.com/#api) useful.
+[API docs](https://docs.gdax.com/#api) useful.
 
 # Example
 
@@ -74,7 +74,7 @@ class RandomBot extends TradingBot {
             key: xxx,
             secret: xxxxxxxx,
             passphrase: xxxxxxx,
-            apiURI: 'https://api-public.sandbox.exchange.coinbase.com'
+            apiURI: 'https://api-public.sandbox.exchange.gdax.com'
         };
         super({ auth: auth });
     }
