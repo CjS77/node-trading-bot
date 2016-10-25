@@ -8,10 +8,10 @@ describe('The TradingBot class', () => {
 
     beforeEach(() => {
         let options = {
-            client: new mocks.AuthenticatedClient(),
-            websocketClient: new mocks.WebsocketClient()
+            client: new mocks.AuthenticatedClient()
         };
         bot = new TradingBot(options);
+        bot._orderbookSync = mocks.mockOrderBook;
     });
 
     it('can be constructed', () => {
@@ -51,14 +51,9 @@ describe('The TradingBot class', () => {
         expect(bot.midmarket_price.data).to.be(undefined);
     });
 
-    it('the order book is initially undefined', () => {
-        expect(bot.order_book.updated).to.be(undefined);
-        expect(bot.order_book.data).to.be(undefined);
-    });
-
     it('the ticker price is initially undefined', () => {
-        expect(bot.order_book.updated).to.be(undefined);
-        expect(bot.order_book.data).to.be(undefined);
+        expect(bot.ticker.updated).to.be(undefined);
+        expect(bot.ticker.data).to.be(undefined);
     });
 
     it('my orders are initially undefined', () => {
@@ -71,7 +66,7 @@ describe('The TradingBot class', () => {
         setTimeout(() => {
             expect(bot.ticker.data.ask).to.equal('403.05');
             expect(bot.price.data).to.equal('402.50');
-            expect(bot.order_book.data).to.eql(mocks.mockOrderBook);
+            expect(bot.order_book).to.eql(mocks.mockOrderBook.book.state());
             expect(bot.my_orders.data).to.eql(bot.client.orders);
             expect(bot.midmarket_price.data).to.equal(402.55);
             done();
@@ -120,6 +115,7 @@ describe('A simple bot', () => {
     var bot;
     beforeEach(() => {
         bot = new SimpleBot();
+        bot._orderbookSync = mocks.mockOrderBook;
     });
     it('can be subclassed from TradingBot', () => {
         expect(bot instanceof SimpleBot).to.be(true);
@@ -132,7 +128,7 @@ describe('A simple bot', () => {
             expect(bot.count).to.be.greaterThan(1);
             done();
         }, 20);
-        bot.start_trading({ interval: 5 }).then(() => {
+        bot.start_trading({ time: 5 }).then(() => {
             console.log('Got here');
             expect(bot.is_trading).to.be(true);
             expect(bot.count).to.be(0);

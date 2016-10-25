@@ -1,21 +1,25 @@
 'use strict';
 
 var mockOrderBook = {
-    sequence: '3',
-    'bids': [
-        ['402.05', '1', 2],
-        ['402.00', '2', 1],
-        ['401.00', '1', 2],
-        ['400.00', '5', 3],
-        ['398.00', '1', 1]
-    ],
-    'asks': [
-        ['403.05', '1', 1],
-        ['404.00', '2', 2],
-        ['406.00', '3', 3],
-        ['406.00', '3', 6],
-        ['410.00', '5', 5],
-    ]
+    state: function() {
+        return {
+            sequence: '3',
+            'bids': [
+                ['402.05', '1', 2],
+                ['402.00', '2', 1],
+                ['401.00', '1', 2],
+                ['400.00', '5', 3],
+                ['398.00', '1', 1]
+            ],
+            'asks': [
+                ['403.05', '1', 1],
+                ['404.00', '2', 2],
+                ['406.00', '3', 3],
+                ['406.00', '3', 6],
+                ['410.00', '5', 5],
+            ]
+        };
+    }
 };
 
 class MockAuthenticatedClient {
@@ -80,6 +84,11 @@ class MockAuthenticatedClient {
         cb(null, order ? id : null);
     }
 
+    cancelAllOrders(cb) {
+        this.orders = [];
+        return cb(null, true);
+    }
+
     getProductTicker(cb) {
         cb(null, {
             "trade_id": 0,
@@ -92,7 +101,11 @@ class MockAuthenticatedClient {
         })
     }
 
-    getProductOrderBook(options, cb) {
+    getProductOrderBook(options, product, cb) {
+        if (typeof product === 'function') {
+            cb = product;
+            product = options;
+        }
         cb(null, mockOrderBook);
     }
 
@@ -108,5 +121,5 @@ class MockWebsocketClient {
 module.exports = {
     AuthenticatedClient: MockAuthenticatedClient,
     WebsocketClient: MockWebsocketClient,
-    mockOrderBook: mockOrderBook
+    mockOrderBook: { book: mockOrderBook }
 };
