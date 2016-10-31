@@ -1,5 +1,7 @@
 # Trading bot helper for GDAX exchanges
 
+**Note:** _Version 2.x is generally far easier to use and is much more up to date, but breaks a lot of compatibility with version 1.x._ 
+
 This package provides a base from which to easily write automated trading bots on GDAX's exchanges.
 The bots can be run on the Sandbox (with play money, for testing) and with real money, using your API keys.
 
@@ -9,7 +11,7 @@ The bots can be run on the Sandbox (with play money, for testing) and with real 
 
 # Usage
 
-Extend the base `Trading Bot` class and implement the `_execute_trading_strategy` method. Trade data data is available
+Extend the base `Trading Bot` class and implement the `_execute_trading_strategy` method. REST data is available
 to the method in the object instance (i.e. the `this` variable). Each variable has the following form
 
     trade_data : {
@@ -24,11 +26,19 @@ present, lists any errors coming from the API (e.g. connection lost)
 The following trade data are available as properties:
 
 * `ticker` - the ticker object (bid, ask, price, volume) for the selected product
-* `price` - the last trade price for the selected product
-* `midmarket_price` - the current midpoint between the highest bid and lowest ask
-* `orderbook` - The Level 2 (i.e. aggregated on price) order book for the selected product
 * `myorders` - Your orders (all orders are included)
 
+These properties are not automatically updated. Call `refresh_indicators` to reload the latest values.
+You can also call `fetch_ticker` or `fetch_myorders` to reload the respective data with promises
+
+In addition, a connection to the GDAX websocket feed is made to provide realtime updates of the following
+properties:
+
+* `last_price` - The last traded price of the exchange
+* `midmarket_price` - The current midpoint between best bid and ask
+* `orderbook` - The full level 3 orderbook, updated in realtime, or if more fine-grained control is wanted:
+* `synced_book` - The underlyign SyncedOrderbook instance
+ 
 The constructor for the base class takes the following options:
 
 * `product` - The order book to use. Defaults to 'BTC-USD'.

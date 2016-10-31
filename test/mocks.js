@@ -1,7 +1,15 @@
 'use strict';
+const EventEmitter = require('events').EventEmitter;
 
-var mockOrderBook = {
-    state: function() {
+class MockOrderBook extends EventEmitter {
+    constructor() {
+        super();
+        this.book = {
+            state: MockOrderBook.state
+        }
+    }
+
+    static state() {
         return {
             sequence: '3',
             'bids': [
@@ -20,7 +28,7 @@ var mockOrderBook = {
             ]
         };
     }
-};
+}
 
 class MockAuthenticatedClient {
     constructor() {
@@ -121,5 +129,5 @@ class MockWebsocketClient {
 module.exports = {
     AuthenticatedClient: MockAuthenticatedClient,
     WebsocketClient: MockWebsocketClient,
-    mockOrderBook: { book: mockOrderBook }
+    mockOrderBook: new MockOrderBook()
 };

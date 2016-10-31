@@ -11,7 +11,10 @@ describe('The TradingBot class', () => {
             client: new mocks.AuthenticatedClient()
         };
         bot = new TradingBot(options);
+        // Hijack the internal WS client
         bot._orderbookSync = mocks.mockOrderBook;
+        // Must call this since we've short-circuited the internal logic
+        bot.listen_to_messages();
     });
 
     it('can be constructed', () => {
@@ -42,13 +45,7 @@ describe('The TradingBot class', () => {
     });
 
     it('the price is initially undefined', () => {
-        expect(bot.price.updated).to.be(undefined);
-        expect(bot.price.data).to.be(undefined);
-    });
-
-    it('the ticker is initially undefined', () => {
-        expect(bot.midmarket_price.updated).to.be(undefined);
-        expect(bot.midmarket_price.data).to.be(undefined);
+        expect(bot.last_price).to.be(undefined);
     });
 
     it('the ticker price is initially undefined', () => {
@@ -61,40 +58,43 @@ describe('The TradingBot class', () => {
         expect(bot.my_orders.data).to.be(undefined);
     });
 
-    it('provides data after a refresh', (done) => {
-        bot.refresh_indicators();
-        setTimeout(() => {
+    it('provides data after a refresh', () => {
+        return bot.refresh_indicators().then(() => {
             expect(bot.ticker.data.ask).to.equal('403.05');
-            expect(bot.price.data).to.equal('402.50');
             expect(bot.order_book).to.eql(mocks.mockOrderBook.book.state());
             expect(bot.my_orders.data).to.eql(bot.client.orders);
-            expect(bot.midmarket_price.data).to.equal(402.55);
-            done();
-        }, 50);
+        });
     });
     
-    it('can cancel an order', (done) => {
-        bot.cancel_order('d50ec984-77a8-460a-b958-66f114b0de9c').then(() => {
-            bot.refresh_indicators();
-            setTimeout(() => {
+    it('can cancel an order', () => {
+        return bot.cancel_order('d50ec984-77a8-460a-b958-66f114b0de9c').then(() => {
+            return bot.refresh_indicators().then(() => {
                 expect(bot.my_orders.data.length).to.equal(2);
                 expect(bot.my_orders.data[0].id).to.equal('d50ec984-77a8-460a-b958-66f114b0de9b');
                 expect(bot.my_orders.data[1].id).to.equal('d50ec984-77a8-460a-b958-66f114b0de9d');
-                done();
-            }, 50);
+            });
         });
     });
 
-    it('can cancel all orders', (done) => {
-        bot.cancel_all_orders().then(() => {
-            bot.refresh_indicators();
-            setTimeout(() => {
+    it('can cancel all orders', () => {
+        return bot.cancel_all_orders().then(() => {
+            return bot.refresh_indicators().then(() => {
                 expect(bot.my_orders.data).to.eql([]);
-                console.log('All orders deleted');
-                done();
-            }, 50);
+            });
         });
     });
+
+    it('has realtime last_price updates', done => {
+        mocks.mockOrderBook.emit('message', {
+            type: 'match',
+            price: '1.2345'
+        });
+        setTimeout(() => {
+            expect(bot.last_price).to.eql('1.2345');
+            done();
+        }, 10);
+    });
+
 });
 
 describe('A simple bot', () => {
@@ -135,16 +135,14 @@ describe('A simple bot', () => {
         });
     });
     
-    it('logs api errors', (done) => {
+    it('logs api errors', () => {
         const old_ticker = bot.client.getProductTicker;
-        bot.client.getProductTicker = (cb) => { cb('Could not get ticker') };
-        bot.refresh_indicators();
-        setTimeout(() => {
+        bot.client.getProductTicker = (cb) => { cb(new Error('Could not get ticker')) };
+        return bot.refresh_indicators().then(() => {
             expect(bot.ticker.errors.length).to.be(1);
-            expect(bot.ticker.errors[0].error).to.be('Could not get ticker');
+            expect(bot.ticker.errors[0].error.message).to.be('Could not get ticker');
             bot.client.getProductTicker = old_ticker;
-            done();
-        }, 20)
+        });
     }
     )
 });
