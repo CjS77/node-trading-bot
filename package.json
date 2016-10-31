@@ -1,6 +1,6 @@
 {
   "name": "trading_bot",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Trading bot super-class for GDAX",
   "repository": "https://github.com/CjS77/node-trading-bot",
   "main": "lib/trading_bot.js",
